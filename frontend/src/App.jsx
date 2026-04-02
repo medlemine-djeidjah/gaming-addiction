@@ -275,8 +275,8 @@ export default function App() {
   const update = (key, val) => setValues(v => ({ ...v, [key]: val }))
 
   const handleNext = async () => {
-    if (step === 0 && values.years_gaming > values.age) {
-      setError(`Wait, you have ${values.years_gaming} years of gaming experience but you are only ${values.age} years old? That's not possible!`)
+    if (step === 0 && (values.age - values.years_gaming) < 7) {
+      setError(`Wait, you have ${values.years_gaming} years of gaming experience but you are only ${values.age} years old? This implies you started at age ${values.age - values.years_gaming}, which is unrealistic. Please ensure at least a 7–9 year gap for a credible diagnostic profile.`)
       return
     }
     setError(null)
