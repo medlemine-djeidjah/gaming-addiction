@@ -81,9 +81,8 @@ function ProfileStep({ v, u }) {
         options={[
           { value: 'Male',   label: 'Male',   icon: <User size={IC} /> },
           { value: 'Female', label: 'Female', icon: <UserCircle size={IC} /> },
-          { value: 'Other',  label: 'Other',  icon: <Users size={IC} /> },
         ]}
-        columns={3}
+        columns={2}
         value={v.gender}
         onChange={val => u('gender', val)}
       />
@@ -276,6 +275,11 @@ export default function App() {
   const update = (key, val) => setValues(v => ({ ...v, [key]: val }))
 
   const handleNext = async () => {
+    if (step === 0 && values.years_gaming > values.age) {
+      setError(`Wait, you have ${values.years_gaming} years of gaming experience but you are only ${values.age} years old? That's not possible!`)
+      return
+    }
+    setError(null)
     if (step < STEPS_META.length - 1) {
       setDir(1)
       setStep(s => s + 1)
@@ -318,148 +322,178 @@ export default function App() {
   const isLast = step === STEPS_META.length - 1
 
   return (
-    <div className="min-h-screen bg-[#080604] text-white flex flex-col items-center">
-
-      {/* Ambient background */}
+    <div className="min-h-screen bg-[#fcfdfd] text-slate-800 flex flex-col items-center pb-12 sm:pb-20 selection:bg-amber-100 selection:text-amber-900 transition-all duration-500 overflow-x-hidden">
+      {/* Refined Structural Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none select-none" aria-hidden>
-        <div className="absolute -top-60 -left-40 w-96 h-96 bg-orange-950/60 rounded-full blur-[80px]" />
-        <div className="absolute -bottom-60 -right-40 w-[30rem] h-[30rem] bg-amber-950/40 rounded-full blur-[100px]" />
-        <div className="absolute top-1/3 right-10 w-64 h-64 bg-orange-900/20 rounded-full blur-[60px]" />
-        <div
-          className="absolute inset-0 opacity-[0.025]"
-          style={{
-            backgroundImage: 'linear-gradient(#f97316 1px, transparent 1px), linear-gradient(90deg, #f97316 1px, transparent 1px)',
-            backgroundSize: '40px 40px',
-          }}
-        />
+        <div className="absolute top-0 right-0 w-[50%] h-[30%] bg-amber-50/20 rounded-full blur-[120px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(#f1f5f9_1.5px,transparent_1.5px)] [background-size:32px_32px] opacity-40" />
       </div>
 
-      {/* Header */}
-      <header className="w-full max-w-2xl px-4 pt-8 pb-4 relative z-10">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2.5 rounded-xl bg-orange-500/15 border border-orange-500/25">
-            <Gamepad2 size={24} className="text-orange-400" />
-          </div>
-          <div>
-            <h1 className="text-lg font-black tracking-tight text-white">GamingCheck</h1>
-            <p className="text-neutral-600 text-xs">AI-powered gaming addiction risk assessment</p>
-          </div>
-
-          {/* Model picker */}
-          <div className="ml-auto">
-            <select
-              value={model}
-              onChange={e => setModel(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-neutral-400 outline-none cursor-pointer hover:border-orange-500/30 transition-colors"
+      <div className="w-full max-w-5xl px-4 sm:px-10 lg:px-16 pt-6 sm:pt-12 relative z-10">
+        {/* Header Section - Modern Horizontal Logic */}
+        <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-10 mb-8 sm:mb-12">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+            <motion.div
+              className="p-4 rounded-[2rem] bg-slate-900 shadow-sm transition-transform hover:scale-105 shrink-0"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
             >
-              {MODELS.map(m => (
-                <option key={m.value} value={m.value} className="bg-[#100c06]">
-                  {m.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Progress */}
-        <div className="flex gap-1.5 mb-2">
-          {STEPS_META.map((_, i) => (
-            <div key={i} className="h-1 flex-1 rounded-full overflow-hidden bg-white/10">
-              {i <= step && (
-                <motion.div
-                  className="h-full bg-gradient-to-r from-orange-500 to-amber-400"
-                  initial={{ width: 0 }}
-                  animate={{ width: '100%' }}
-                  transition={{ duration: 0.35 }}
-                />
-              )}
+              <Gamepad2 size={28} className="text-white" />
+            </motion.div>
+            <div className="flex flex-col">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight uppercase leading-none mb-2">GamingCheck</h1>
+              <div className="flex items-center justify-center sm:justify-start gap-2.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.25em] text-slate-400">Diagnostic Suite v4</span>
+              </div>
             </div>
-          ))}
-        </div>
-        <div className="flex justify-between text-xs text-neutral-600">
-          <span>Step {step + 1} of {STEPS_META.length}</span>
-          <span>{Math.round(((step + 1) / STEPS_META.length) * 100)}% complete</span>
-        </div>
-      </header>
+          </div>
 
-      {/* Step card */}
-      <main className="w-full max-w-2xl px-4 flex-1 relative z-10">
-        <AnimatePresence mode="wait" custom={dir}>
-          <motion.div
-            key={step}
-            custom={dir}
-            variants={{
-              enter:  d => ({ opacity: 0, x: d > 0 ?  70 : -70 }),
-              center:   { opacity: 1, x: 0 },
-              exit:   d => ({ opacity: 0, x: d > 0 ? -70 :  70 }),
-            }}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
-          >
-            <div className="glass rounded-2xl p-6 shadow-2xl">
-              {/* Step header */}
-              <div className="flex items-center gap-3.5 mb-6">
-                <div className={`p-3 rounded-xl bg-gradient-to-br ${meta.grad} shadow-lg flex-shrink-0`}>
-                  {meta.icon}
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-white leading-tight">{meta.title}</h2>
-                  <p className="text-neutral-400 text-sm leading-relaxed">{meta.subtitle}</p>
+          <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-10">
+            {/* Model Engine Selector */}
+            <div className="flex flex-col items-center sm:items-end gap-2 w-full sm:w-auto">
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] leading-none">Diagnostic Matrix</span>
+              <div className="relative group w-full sm:w-auto">
+                <select
+                  value={model}
+                  onChange={e => setModel(e.target.value)}
+                  className="w-full sm:w-auto bg-white border border-slate-200 rounded-2xl px-5 py-3 text-[11px] font-black text-slate-900 shadow-sm outline-none cursor-pointer hover:border-amber-400 transition-all appearance-none pr-10 text-center sm:text-left"
+                >
+                  {MODELS.map(m => (
+                    <option key={m.value} value={m.value}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+                <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none rotate-90" size={14} />
+              </div>
+            </div>
+
+            {/* Global Progress Indicator */}
+            <div className="hidden sm:flex flex-col items-end gap-2">
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] leading-none">Session Status</span>
+              <div className="flex items-center gap-2">
+                {[...Array(STEPS_META.length)].map((_, i) => (
+                  <div key={i} className={`w-2 h-2 rounded-full transition-all duration-300 ${i === step ? 'bg-amber-500 scale-125' : i < step ? 'bg-slate-900' : 'bg-slate-200'}`} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Interface Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          {/* Sidebar Navigation - Desktop only */}
+          <aside className="hidden lg:flex lg:col-span-3 flex-col gap-3">
+            {STEPS_META.map((s, i) => (
+              <div
+                key={i}
+                className={`p-5 rounded-2xl border transition-all duration-500 flex items-center gap-4 ${
+                  i === step 
+                    ? 'bg-slate-900 border-slate-900 text-white shadow-md' 
+                    : i < step ? 'bg-white border-slate-100 text-slate-400' : 'bg-transparent border-transparent text-slate-200'
+                }`}
+              >
+                <div className="shrink-0">{s.icon}</div>
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-black uppercase tracking-widest leading-none mb-1 opacity-50">Phase 0{i + 1}</span>
+                  <span className="text-xs font-bold whitespace-nowrap">{s.title}</span>
                 </div>
               </div>
+            ))}
+          </aside>
 
-              <StepComponent v={values} u={update} />
+          {/* Diagnostic Core Card */}
+          <div className="lg:col-span-9">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={step}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                className="bg-white rounded-[2.5rem] p-8 sm:p-14 border border-slate-100 shadow-sm relative overflow-hidden min-h-[460px] flex flex-col"
+              >
+                <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none select-none">
+                  {meta.icon && <div className="scale-[8] lg:scale-[10] origin-top-right transition-transform">{meta.icon}</div>}
+                </div>
+
+                <div className="mb-12 relative z-10">
+                  <motion.span 
+                    className="text-[10px] font-black uppercase tracking-[0.3em] text-amber-600 mb-4 block"
+                    layoutId="category"
+                  >
+                    Diagnostic Parameter {step + 1}
+                  </motion.span>
+                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-[1.1] tracking-tight uppercase max-w-2xl">
+                    {meta.title}
+                  </h2>
+                  <p className="text-slate-400 text-sm sm:text-base leading-relaxed max-w-lg mt-6 font-medium">
+                    {meta.subtitle}
+                  </p>
+                </div>
+
+                <div className="flex-1 flex flex-col justify-center relative z-10 py-6">
+                  <StepComponent v={values} u={update} />
+                </div>
+
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-10 flex items-center gap-4 text-orange-900 bg-orange-50 p-5 rounded-2xl border border-orange-100"
+                  >
+                    <AlertCircle size={20} className="shrink-0 text-orange-600" />
+                    <span className="text-xs font-bold uppercase tracking-wider leading-relaxed">{error}</span>
+                  </motion.div>
+                )}
+
+                {/* Progress bar for mobile */}
+                <div className="lg:hidden mt-12 pt-8 border-t border-slate-50 flex items-center justify-between gap-6">
+                  <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <motion.div 
+                      className="h-full bg-amber-500" 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${((step + 1) / STEPS_META.length) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{step + 1} / 5</span>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Tactical Controls */}
+            <div className="mt-8 flex flex-col sm:flex-row items-center gap-4">
+              {step > 0 && (
+                <button
+                  onClick={handleBack}
+                  className="w-full sm:w-auto px-10 py-5 rounded-2xl border border-slate-100 bg-white text-slate-400 hover:text-slate-900 hover:border-slate-200 transition-all text-xs font-black uppercase tracking-widest flex items-center justify-center gap-4 shadow-sm"
+                >
+                  <ChevronLeft size={16} /> Previous
+                </button>
+              )}
+
+              <button
+                onClick={handleNext}
+                disabled={loading}
+                className="w-full flex-1 px-10 py-5 rounded-2xl bg-slate-900 text-white hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-xs font-black uppercase tracking-[0.3em] shadow-sm flex items-center justify-center gap-4 group"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Analyzing Bio-Data...
+                  </>
+                ) : (
+                  <>
+                    {isLast ? 'Initiate Diagnosis' : 'Acknowledge Pattern'}
+                    <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
+              </button>
             </div>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Error banner */}
-        {error && (
-          <motion.div
-            className="mt-3 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            ⚠️ {error}
-          </motion.div>
-        )}
-
-        {/* Navigation */}
-        <div className="flex gap-3 mt-4 mb-10">
-          {step > 0 && (
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={handleBack}
-              className="flex items-center gap-1.5 px-5 py-3 rounded-xl border border-white/10 bg-white/5 text-neutral-300 hover:border-orange-500/30 hover:text-white text-sm font-medium transition-all"
-            >
-              <ChevronLeft size={16} />
-              Back
-            </motion.button>
-          )}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={handleNext}
-            disabled={loading}
-            className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white font-semibold flex-1 text-sm transition-all shadow-lg shadow-orange-950/50 disabled:opacity-60"
-          >
-            {loading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Analyzing…
-              </>
-            ) : (
-              <>
-                {isLast ? 'Analyze My Risk' : 'Continue'}
-                <ChevronRight size={16} />
-              </>
-            )}
-          </motion.button>
+          </div>
         </div>
-      </main>
+      </div>
     </div>
   )
 }
