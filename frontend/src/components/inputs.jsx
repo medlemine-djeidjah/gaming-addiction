@@ -14,10 +14,10 @@ export function SliderField({ label, description, value, min, max, step = 1, uni
     <motion.div className="mb-6" {...fadeUp}>
       <div className="flex justify-between items-baseline mb-1">
         <label className="text-white font-semibold text-sm">{label}</label>
-        <span className="text-purple-400 font-bold text-xl tabular-nums">{display}</span>
+        <span className="text-orange-400 font-bold text-xl tabular-nums">{display}</span>
       </div>
       {description && (
-        <p className="text-gray-500 text-xs mb-3 leading-relaxed">{description}</p>
+        <p className="text-neutral-500 text-xs mb-3 leading-relaxed">{description}</p>
       )}
       <input
         type="range"
@@ -27,10 +27,10 @@ export function SliderField({ label, description, value, min, max, step = 1, uni
         value={value}
         onChange={e => onChange(parseFloat(e.target.value))}
         style={{
-          background: `linear-gradient(to right, #8b5cf6 ${pct}%, #1e1e3a ${pct}%)`,
+          background: `linear-gradient(to right, #f97316 ${pct}%, #1c1208 ${pct}%)`,
         }}
       />
-      <div className="flex justify-between text-xs text-gray-600 mt-1">
+      <div className="flex justify-between text-xs text-neutral-600 mt-1">
         <span>{min}{unit}</span>
         <span>{max}{unit}</span>
       </div>
@@ -43,7 +43,7 @@ export function ChoiceGrid({ label, description, options, value, onChange, colum
     <motion.div className="mb-6" {...fadeUp}>
       <label className="text-white font-semibold text-sm block mb-1">{label}</label>
       {description && (
-        <p className="text-gray-500 text-xs mb-3 leading-relaxed">{description}</p>
+        <p className="text-neutral-500 text-xs mb-3 leading-relaxed">{description}</p>
       )}
       <div
         className="grid gap-2"
@@ -58,11 +58,13 @@ export function ChoiceGrid({ label, description, options, value, onChange, colum
             onClick={() => onChange(opt.value)}
             className={`py-3 px-2 rounded-xl border text-center transition-all duration-200 ${
               value === opt.value
-                ? 'border-purple-500 bg-purple-500/20 text-white shadow-[0_0_20px_rgba(139,92,246,0.3)]'
-                : 'border-white/10 bg-white/5 text-gray-400 hover:border-purple-400/30 hover:text-gray-200 hover:bg-white/8'
+                ? 'border-orange-500 bg-orange-500/15 text-white shadow-[0_0_20px_rgba(249,115,22,0.25)]'
+                : 'border-white/8 bg-white/5 text-neutral-400 hover:border-orange-400/30 hover:text-neutral-200 hover:bg-white/8'
             }`}
           >
-            {opt.icon && <div className="text-2xl mb-1">{opt.icon}</div>}
+            {opt.icon && (
+              <div className="mb-1.5 flex justify-center">{opt.icon}</div>
+            )}
             <div className="text-xs font-medium leading-snug">{opt.label}</div>
           </motion.button>
         ))}
@@ -76,7 +78,7 @@ export function RatingScale({ label, description, options, value, onChange }) {
     <motion.div className="mb-6" {...fadeUp}>
       <label className="text-white font-semibold text-sm block mb-1">{label}</label>
       {description && (
-        <p className="text-gray-500 text-xs mb-3 leading-relaxed">{description}</p>
+        <p className="text-neutral-500 text-xs mb-3 leading-relaxed">{description}</p>
       )}
       <div className="flex gap-1.5">
         {options.map(opt => (
@@ -87,11 +89,10 @@ export function RatingScale({ label, description, options, value, onChange }) {
             onClick={() => onChange(opt.value)}
             className={`flex-1 py-2.5 px-1 rounded-lg border text-center text-xs font-medium transition-all duration-200 ${
               value === opt.value
-                ? 'border-purple-500 bg-gradient-to-b from-purple-500/30 to-purple-600/10 text-white shadow-[0_0_12px_rgba(139,92,246,0.25)]'
-                : 'border-white/10 bg-white/5 text-gray-500 hover:border-purple-400/25 hover:text-gray-300'
+                ? 'border-orange-500 bg-gradient-to-b from-orange-500/25 to-orange-600/10 text-white shadow-[0_0_12px_rgba(249,115,22,0.2)]'
+                : 'border-white/8 bg-white/5 text-neutral-500 hover:border-orange-400/25 hover:text-neutral-300'
             }`}
           >
-            {opt.icon && <div className="mb-0.5">{opt.icon}</div>}
             {opt.label}
           </motion.button>
         ))}
@@ -105,8 +106,8 @@ export function ToggleRow({ label, description, value, onChange }) {
     <motion.div
       className={`flex items-center justify-between p-4 rounded-xl border mb-3 cursor-pointer select-none transition-all duration-200 ${
         value
-          ? 'border-purple-500/40 bg-purple-500/10'
-          : 'border-white/10 bg-white/5 hover:border-purple-500/20 hover:bg-white/8'
+          ? 'border-orange-500/40 bg-orange-500/10'
+          : 'border-white/8 bg-white/5 hover:border-orange-400/20 hover:bg-white/8'
       }`}
       {...fadeUp}
       onClick={() => onChange(value === 1 ? 0 : 1)}
@@ -114,12 +115,12 @@ export function ToggleRow({ label, description, value, onChange }) {
       <div className="flex-1 pr-4">
         <div className="text-white font-semibold text-sm">{label}</div>
         {description && (
-          <div className="text-gray-500 text-xs mt-0.5 leading-relaxed">{description}</div>
+          <div className="text-neutral-500 text-xs mt-0.5 leading-relaxed">{description}</div>
         )}
       </div>
       <div
         className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-300 ${
-          value ? 'bg-purple-500' : 'bg-gray-700'
+          value ? 'bg-orange-500' : 'bg-neutral-700'
         }`}
       >
         <motion.div
