@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: gaming_api
-    restart: unless-stopped
+    restart: always
     expose:
       - "8000"
     healthcheck:
@@ -22,7 +22,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: gaming_frontend
-    restart: unless-stopped
+    restart: always
     ports:
       - "80:80"
     depends_on:
