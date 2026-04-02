@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Data & notebooks (not needed in API image)
+*.csv
+*.ipynb
+reports/
+
+# Frontend build artifacts
+frontend/
+
+# Git
+.git/
+.gitignore
+
+# Misc
+*.log
+.env
+.DS_Store

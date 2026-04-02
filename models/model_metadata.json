@@ -1,0 +1,80 @@
+{
+  "target": "gaming_addiction_risk_level",
+  "features_used": [
+    "age",
+    "gender",
+    "daily_gaming_hours",
+    "game_genre",
+    "primary_game",
+    "gaming_platform",
+    "sleep_hours",
+    "sleep_quality",
+    "sleep_disruption_frequency",
+    "academic_work_performance",
+    "grades_gpa",
+    "work_productivity_score",
+    "mood_state",
+    "mood_swing_frequency",
+    "withdrawal_symptoms",
+    "loss_of_other_interests",
+    "continued_despite_problems",
+    "eye_strain",
+    "back_neck_pain",
+    "weight_change_kg",
+    "exercise_hours_weekly",
+    "social_isolation_score",
+    "face_to_face_social_hours_weekly",
+    "monthly_game_spending_usd",
+    "years_gaming",
+    "gaming_start_age",
+    "sleep_deficit_hours",
+    "gaming_social_ratio",
+    "spending_per_hour",
+    "behavioral_risk_score",
+    "physical_symptom_score",
+    "exercise_isolation_ratio"
+  ],
+  "best_model_name": "decision_tree",
+  "all_models_tested": [
+    "logistic_regression",
+    "decision_tree",
+    "random_forest",
+    "gradient_boosting"
+  ],
+  "n_train_samples": 800,
+  "n_test_samples": 200,
+  "test_results": {
+    "logistic_regression": {
+      "accuracy": 0.98,
+      "balanced_accuracy": 0.9731367253084167,
+      "f1_macro": 0.9714038196387362,
+      "precision_macro": 0.9713622291021672,
+      "recall_macro": 0.9731367253084167,
+      "roc_auc_macro_ovr": 0.9973774367950468
+    },
+    "decision_tree": {
+      "accuracy": 0.995,
+      "balanced_accuracy": 0.993421052631579,
+      "f1_macro": 0.9954589371980677,
+      "precision_macro": 0.9975961538461539,
+      "recall_macro": 0.993421052631579,
+      "roc_auc_macro_ovr": 0.9954218665219751
+    },
+    "random_forest": {
+      "accuracy": 0.99,
+      "balanced_accuracy": 0.9830069124423964,
+      "f1_macro": 0.9830069124423964,
+      "precision_macro": 0.9830069124423964,
+      "recall_macro": 0.9830069124423964,
+      "roc_auc_macro_ovr": 0.9988162143161531
+    },
+    "gradient_boosting": {
+      "accuracy": 0.995,
+      "balanced_accuracy": 0.993421052631579,
+      "f1_macro": 0.9954589371980677,
+      "precision_macro": 0.9975961538461539,
+      "recall_macro": 0.993421052631579,
+      "roc_auc_macro_ovr": 0.9985942107480879
+    }
+  }
+}
