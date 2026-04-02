@@ -24,7 +24,7 @@ services:
     container_name: gaming_frontend
     restart: always
     ports:
-      - "80:80"
+      - "8383:80"
     depends_on:
       api:
         condition: service_healthy
