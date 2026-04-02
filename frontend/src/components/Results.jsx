@@ -1,60 +1,55 @@
 import { motion } from 'framer-motion'
-import { RotateCcw, Shield, AlertTriangle, Zap, Skull, CheckCircle, Gamepad2 } from 'lucide-react'
+import { RotateCcw, Shield, AlertTriangle, Zap, Skull, CheckCircle } from 'lucide-react'
 
 const RISK_CONFIG = {
-  Low:      { color: '#059669', bg: '#f0fdf4', border: '#bbf7d0', dash: '#10b981', score: 12, icon: <Shield size={32} />,        label: 'Healthy Balance', desc: 'Your gaming habits demonstrate high self-regulation and a low probability of addiction risk.' },
-  Moderate: { color: '#d97706', bg: '#fffbeb', border: '#fef3c7', dash: '#f59e0b', score: 38, icon: <AlertTriangle size={32} />, label: 'Mild concern',   desc: 'Analysis indicates emerging behavioral patterns that may require proactive boundary setting.' },
-  High:     { color: '#ea580c', bg: '#fff7ed', border: '#ffedd5', dash: '#f97316', score: 65, icon: <Zap size={32} />,           label: 'Elevated Risk',  desc: 'Clinical indicators suggest significant displacement of core lifestyle activities by gaming.' },
-  Severe:   { color: '#dc2626', bg: '#fef2f2', border: '#fee2e2', dash: '#ef4444', score: 90, icon: <Skull size={32} />,          label: 'Critical Risk',  desc: 'Diagnostic markers strongly correlate with clinical gaming disorder. Immediate professional intervention is advised.' },
+  Low:      { color: '#10b981', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)',  glow: 'rgba(16,185,129,0.4)',  score: 12, icon: <Shield size={32} />,        label: 'Low Risk',      desc: 'Your gaming habits appear healthy. Keep maintaining a balanced lifestyle.' },
+  Moderate: { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)',  glow: 'rgba(245,158,11,0.4)',  score: 38, icon: <AlertTriangle size={32} />, label: 'Moderate Risk', desc: 'Some warning signs detected. Consider setting clearer boundaries around gaming time.' },
+  High:     { color: '#f97316', bg: 'rgba(249,115,22,0.12)', border: 'rgba(249,115,22,0.3)',  glow: 'rgba(249,115,22,0.4)',  score: 65, icon: <Zap size={32} />,           label: 'High Risk',     desc: 'Significant addiction indicators present. It\'s important to seek balance and consider talking to someone.' },
+  Severe:   { color: '#ef4444', bg: 'rgba(239,68,68,0.12)',  border: 'rgba(239,68,68,0.3)',   glow: 'rgba(239,68,68,0.5)',   score: 90, icon: <Skull size={32} />,          label: 'Severe Risk',   desc: 'Strong signs of gaming addiction detected. We strongly recommend professional support.' },
 }
 
 // SVG arc gauge — 240° sweep
 const R = 80
 const CIRC = 2 * Math.PI * R
-const ARC = (240 / 360) * CIRC
+const ARC = (240 / 360) * CIRC   // arc length for 240°
 const GAP = CIRC - ARC
 
 function Gauge({ score, color }) {
   const filled = (score / 100) * ARC
 
   return (
-    <svg width="220" height="180" viewBox="0 0 220 180" className="drop-shadow-sm">
-      <defs>
-        <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#f1f5f9" />
-          <stop offset="100%" stopColor="#e2e8f0" />
-        </linearGradient>
-      </defs>
+    <svg width="200" height="160" viewBox="0 0 200 160">
       {/* Track */}
       <circle
-        cx="110" cy="110" r={R}
+        cx="100" cy="110" r={R}
         fill="none"
-        stroke="url(#gaugeGradient)"
-        strokeWidth="16"
+        stroke="#1e1e3a"
+        strokeWidth="12"
         strokeLinecap="round"
         strokeDasharray={`${ARC} ${GAP}`}
         strokeDashoffset={0}
-        transform="rotate(150 110 110)"
+        transform="rotate(150 100 110)"
       />
       {/* Filled arc */}
       <motion.circle
-        cx="110" cy="110" r={R}
+        cx="100" cy="110" r={R}
         fill="none"
         stroke={color}
-        strokeWidth="16"
+        strokeWidth="12"
         strokeLinecap="round"
         strokeDasharray={`${ARC} ${CIRC}`}
         initial={{ strokeDashoffset: ARC }}
         animate={{ strokeDashoffset: ARC - filled }}
-        transition={{ duration: 1.8, ease: [0.34, 1.56, 0.64, 1], delay: 0.2 }}
-        transform="rotate(150 110 110)"
+        transition={{ duration: 1.4, ease: 'easeOut', delay: 0.3 }}
+        transform="rotate(150 100 110)"
+        filter={`drop-shadow(0 0 8px ${color})`}
       />
       {/* Score text */}
-      <text x="110" y="105" textAnchor="middle" fill="#0f172a" fontSize="40" fontWeight="900" fontFamily="Inter" className="tracking-tight">
+      <text x="100" y="102" textAnchor="middle" fill="white" fontSize="32" fontWeight="800" fontFamily="Inter">
         {score}
       </text>
-      <text x="110" y="128" textAnchor="middle" fill="#94a3b8" fontSize="10" fontFamily="Inter" fontWeight="800" className="uppercase tracking-[0.2em]">
-        Severity Index
+      <text x="100" y="122" textAnchor="middle" fill="#6b7280" fontSize="11" fontFamily="Inter">
+        RISK SCORE
       </text>
     </svg>
   )
@@ -64,50 +59,44 @@ function ProbBar({ label, value, color, isActive }) {
   const pct = Math.round(value * 100)
 
   return (
-    <div className="mb-5 last:mb-0 group/bar">
-      <div className="flex justify-between items-end mb-1.5">
-        <div className="flex items-center gap-2.5">
+    <div className="mb-3">
+      <div className="flex justify-between items-center mb-1.5">
+        <div className="flex items-center gap-2">
           <div
-            className={`w-1 h-3 rounded-full transition-transform duration-500 ${isActive ? 'scale-y-150' : 'opacity-20'}`}
-            style={{ background: color }}
+            className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${isActive ? 'animate-pulse' : ''}`}
+            style={{ background: color, boxShadow: isActive ? `0 0 8px ${color}` : 'none' }}
           />
-          <span className={`text-[10px] font-black uppercase tracking-widest transition-colors duration-300 ${isActive ? 'text-slate-900' : 'text-slate-400'}`}>
+          <span className={`text-sm font-medium ${isActive ? 'text-white' : 'text-gray-400'}`}>
             {label}
           </span>
+          {isActive && (
+            <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ background: `${color}25`, color }}>
+              Predicted
+            </span>
+          )}
         </div>
-        <div className="flex items-baseline gap-1">
-          <span className={`text-xs font-black tabular-nums transition-colors duration-300 ${isActive ? 'text-slate-900' : 'text-slate-400'}`}>
-            {pct}
-          </span>
-          <span className="text-[9px] font-bold text-slate-300">%</span>
-        </div>
+        <span className={`text-sm font-bold tabular-nums ${isActive ? 'text-white' : 'text-gray-500'}`}>
+          {pct}%
+        </span>
       </div>
-      <div className="h-1.5 bg-slate-100/50 rounded-full overflow-hidden p-[1px] relative">
+      <div className="h-2 bg-white/8 rounded-full overflow-hidden">
         <motion.div
-          className="h-full rounded-full relative z-10"
-          style={{ background: isActive ? color : '#cbd5e1' }}
+          className="h-full rounded-full"
+          style={{ background: isActive ? color : `${color}60` }}
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
-          transition={{ duration: 1.2, ease: "circOut", delay: 0.4 }}
+          transition={{ duration: 1, ease: 'easeOut', delay: 0.5 }}
         />
-        {isActive && (
-          <motion.div 
-            className="absolute inset-0 z-0 opacity-20 blur-sm"
-            style={{ background: color, width: `${pct}%` }}
-            initial={{ width: 0 }}
-            animate={{ width: `${pct}%` }}
-          />
-        )}
       </div>
     </div>
   )
 }
 
 const TIPS = {
-  Low:      ['Maintain your current balance of gaming and offline responsibilities.', 'Periodic self-assessment is recommended every 90 days.', 'Continue fostering interpersonal social connections outside digital environments.'],
-  Moderate: ['Establish strict parameters for daily engagement windows.', 'Audit sleep patterns to ensure zero gaming interference.', 'Substitute one digital session weekly with a physical/social proxy.'],
-  High:     ['Implement hardware-level session timers or application monitoring.', 'Initiate dialogue with peer support groups or family members.', 'Enforce a "Digital Blackout" period 2 hours prior to sleep cycle.'],
-  Severe:   ['Consultation with a behavioral salud professional is strongly advised.', 'Gaming Disorder is a clinically recognized condition with evidence-based treatments.', 'Explore intensive digital detoxification resources and specialized counseling.'],
+  Low:      ['Great job! Your gaming habits are healthy.', 'Continue balancing gaming with physical activity.', 'Keep nurturing your real-world social connections.'],
+  Moderate: ['Try setting a daily gaming time limit (e.g., 2 hours).', 'Make sure sleep isn\'t being sacrificed for gaming.', 'Schedule regular breaks and offline activities.'],
+  High:     ['Consider using app timers to limit daily gaming.', 'Talk to a trusted friend or family member about your habits.', 'Prioritize sleep — aim for 7–8 hours per night.', 'Try replacing one gaming session per day with outdoor activity.'],
+  Severe:   ['Please consider speaking with a mental health professional.', 'Gaming addiction is a recognized condition — help is available.', 'Contact resources like the Game Quitters community or a counselor.', 'Set strict daily limits and ask someone to help you stick to them.'],
 }
 
 export default function Results({ result, onReset }) {
@@ -117,164 +106,147 @@ export default function Results({ result, onReset }) {
   const tips = TIPS[prediction] || []
 
   return (
-    <div className="min-h-screen text-slate-800 flex flex-col items-center pb-20 selection:bg-slate-900 selection:text-white transition-colors duration-1000 overflow-x-hidden" style={{ backgroundColor: cfg.bg }}>
-      {/* Structural Background Enhancements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none select-none">
-        <div className="absolute top-[-10%] right-[-10%] w-[80%] h-[50%] rounded-full blur-[160px] opacity-20 transition-colors duration-1000" style={{ backgroundColor: cfg.color }} />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[60%] h-[40%] rounded-full blur-[120px] opacity-10 transition-colors duration-1000" style={{ backgroundColor: cfg.color }} />
-        <div className="absolute inset-0 bg-[radial-gradient(#000000_1.5px,transparent_1.5px)] [background-size:48px_48px] opacity-[0.02]" />
+    <div className="min-h-screen bg-[#070711] text-white flex flex-col items-center pb-12">
+      {/* Background blobs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -left-40 w-80 h-80 rounded-full blur-3xl" style={{ background: `${cfg.color}18` }} />
+        <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full blur-3xl" style={{ background: `${cfg.color}10` }} />
       </div>
 
-      <div className="w-full max-w-6xl px-6 sm:px-12 pt-8 sm:pt-12 relative z-10">
-        {/* Navigation Header - Enhanced Layout */}
+      <div className="w-full max-w-2xl px-4 pt-8 relative z-10">
+        {/* Header */}
         <motion.div
-          className="flex flex-col sm:sm:flex-row items-center justify-between gap-8 mb-10 sm:mb-14"
-          initial={{ opacity: 0, y: -10 }}
+          className="flex items-center gap-3 mb-8"
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="flex items-center gap-6">
-            <div className="p-4 rounded-[1.5rem] bg-slate-900 shadow-xl shadow-slate-900/10 transition-transform hover:scale-110">
-              <Gamepad2 size={28} className="text-white" />
-            </div>
-            <div className="flex flex-col">
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight uppercase leading-none mb-2">GamingCheck</h1>
-              <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400">Diagnostic Intelligence Report</span>
-            </div>
+          <div className="text-3xl">🎮</div>
+          <div>
+            <h1 className="text-xl font-bold">GamingCheck</h1>
+            <p className="text-gray-500 text-xs">Your personalized risk assessment</p>
           </div>
           <button
             onClick={onReset}
-            className="group flex items-center gap-3 px-8 py-4 rounded-2xl border border-slate-200 bg-white text-slate-600 hover:text-slate-900 transition-all text-xs font-black uppercase tracking-widest shadow-sm hover:shadow-md"
+            className="ml-auto flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-gray-400 hover:border-purple-500/30 hover:text-white text-sm transition-all"
           >
-            <RotateCcw size={16} className="group-hover:rotate-180 transition-transform duration-500" />
-            Initiate New Cycle
+            <RotateCcw size={14} />
+            Retake
           </button>
         </motion.div>
 
-        {/* Primary Insight Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 sm:gap-14">
-          
-          {/* Main Result Card - High impact on larger screens */}
+        {/* Risk badge */}
+        <motion.div
+          className="rounded-2xl p-6 mb-5 text-center"
+          style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
           <motion.div
-            className="lg:col-span-8 bg-white rounded-[3rem] p-8 sm:p-14 border border-slate-100 shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[460px]"
-            initial={{ opacity: 0, scale: 0.99 }}
-            animate={{ opacity: 1, scale: 1 }}
+            className="flex justify-center mb-3"
+            style={{ color: cfg.color }}
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
           >
-            <div className="relative z-10">
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl border-2 mb-6" style={{ borderColor: cfg.border, backgroundColor: `${cfg.color}08` }}>
-                <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: cfg.color }} />
-                <span className="text-[11px] font-black uppercase tracking-[0.2em]" style={{ color: cfg.color }}>
-                  Diagnostic Result
-                </span>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row sm:items-end gap-6 sm:gap-8 mb-6">
-                <h2 className="text-5xl sm:text-7xl lg:text-8xl font-black mb-0 tracking-tighter text-slate-900 uppercase leading-[0.9]">
-                  {cfg.label}
-                </h2>
-                {(prediction === 'Severe' || prediction === 'High') && (
-                  <motion.div
-                    initial={{ rotate: -10, scale: 0 }}
-                    animate={{ rotate: 0, scale: 1 }}
-                    transition={{ type: 'spring', delay: 0.5 }}
-                    className="p-5 rounded-3xl bg-rose-50 text-rose-600 border border-rose-100 shadow-sm"
-                  >
-                    <Skull size={48} className="lg:size-64" />
-                  </motion.div>
-                )}
-              </div>
-              
-              <p className="text-slate-400 text-base sm:text-lg leading-relaxed font-medium max-w-2xl mb-8">
-                {cfg.desc}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 pt-12 border-t border-slate-50 relative z-10">
-              <div className="flex flex-col gap-2">
-                <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">Engine Architecture</span>
-                <span className="text-sm font-black text-slate-900 uppercase tracking-tight">{model_info?.name || 'Neural Matrix Core'}</span>
-              </div>
-              <div className="flex flex-col gap-2">
-                <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">Validation confidence</span>
-                <span className="text-sm font-black text-slate-900 uppercase tracking-tight">{model_info?.accuracy}% Peer-Reviewed Accuracy</span>
-              </div>
-            </div>
+            {cfg.icon}
           </motion.div>
+          <h2 className="text-3xl font-black mb-2" style={{ color: cfg.color }}>
+            {cfg.label}
+          </h2>
+          <p className="text-gray-300 text-sm max-w-md mx-auto leading-relaxed">
+            {cfg.desc}
+          </p>
+          <p className="text-gray-600 text-xs mt-3">
+            Analyzed by {model_info?.name || 'AI model'} · {model_info?.accuracy}% accuracy
+          </p>
+        </motion.div>
 
-          {/* Severity Visualization - Sidebar logic on large screens */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+          {/* Gauge */}
           <motion.div
-            className="lg:col-span-4 flex flex-col gap-8"
-            initial={{ opacity: 0, x: 20 }}
+            className="glass rounded-2xl p-5 flex flex-col items-center"
+            initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <div className="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-sm flex flex-col items-center justify-center min-h-[340px]">
-               <Gauge score={cfg.score} color={cfg.color} />
-            </div>
-
-            <div className="bg-white/40 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/20 shadow-sm">
-              <h3 className="text-slate-900 font-black text-[10px] uppercase tracking-[0.3em] mb-8 opacity-30">Confidence Metrics</h3>
-              {ORDER.map(level => (
-                <ProbBar
-                  key={level}
-                  label={level}
-                  value={probabilities[level] ?? 0}
-                  color={RISK_CONFIG[level]?.color}
-                  isActive={level === prediction}
-                />
-              ))}
+            <h3 className="text-white font-semibold text-sm mb-2">Risk Meter</h3>
+            <Gauge score={cfg.score} color={cfg.color} />
+            <div className="flex justify-between w-full text-xs text-gray-600 mt-1 px-2">
+              <span>Low</span>
+              <span>Moderate</span>
+              <span>High</span>
+              <span>Severe</span>
             </div>
           </motion.div>
-        </div>
 
-        {/* Secondary Insights & Strategy */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 mt-10">
+          {/* Probability breakdown */}
           <motion.div
-            className="lg:col-span-12 bg-white rounded-[3rem] p-10 sm:p-16 border border-slate-100 shadow-sm"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+            className="glass rounded-2xl p-5"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
           >
-            <h3 className="text-slate-900 font-black text-xs uppercase tracking-[0.4em] mb-14 flex items-center gap-5">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: cfg.color }}>
-                <CheckCircle size={18} className="stroke-[3]" />
-              </div>
-              Strategic Behavioral roadmap
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {tips.map((tip, i) => (
-                <motion.div
-                  key={i}
-                  className="group flex flex-col gap-6 p-8 rounded-[2rem] bg-slate-50 border border-transparent hover:border-slate-200 transition-all duration-500"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 + i * 0.1 }}
-                >
-                  <span className="text-4xl font-black opacity-10 transition-opacity group-hover:opacity-20" style={{ color: cfg.color }}>0{i+1}</span>
-                  <p className="text-slate-600 text-sm sm:text-base leading-relaxed font-bold">{tip}</p>
-                </motion.div>
-              ))}
-            </div>
+            <h3 className="text-white font-semibold text-sm mb-4">Confidence Breakdown</h3>
+            {ORDER.map(level => (
+              <ProbBar
+                key={level}
+                label={level}
+                value={probabilities[level] ?? 0}
+                color={RISK_CONFIG[level]?.color}
+                isActive={level === prediction}
+              />
+            ))}
           </motion.div>
         </div>
 
-        {/* Closing Action */}
-        <motion.div 
-          className="flex flex-col items-center gap-8 pt-12"
+        {/* Tips */}
+        <motion.div
+          className="glass rounded-2xl p-5 mb-5"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <h3 className="text-white font-semibold text-sm mb-4 flex items-center gap-2">
+            <CheckCircle size={16} style={{ color: cfg.color }} />
+            Recommendations
+          </h3>
+          <div className="space-y-2.5">
+            {tips.map((tip, i) => (
+              <motion.div
+                key={i}
+                className="flex items-start gap-3"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 + i * 0.08 }}
+              >
+                <div
+                  className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold mt-0.5"
+                  style={{ background: `${cfg.color}25`, color: cfg.color }}
+                >
+                  {i + 1}
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed">{tip}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Retake CTA */}
+        <motion.button
+          onClick={onReset}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full py-3.5 rounded-xl font-bold text-white transition-all text-sm"
+          style={{
+            background: `linear-gradient(135deg, ${cfg.color}cc, ${cfg.color}88)`,
+            boxShadow: `0 8px 30px ${cfg.color}30`,
+          }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 0.6 }}
         >
-          <div className="h-[1px] w-32 bg-slate-200" />
-          <button
-            onClick={onReset}
-            className="group flex flex-col items-center gap-6"
-          >
-            <div className="w-16 h-16 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-2xl transition-all duration-700 group-hover:bg-amber-500 group-hover:scale-110">
-              <RotateCcw size={24} className="group-hover:rotate-180 transition-transform duration-1000" />
-            </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-300 group-hover:text-slate-900 transition-colors">Terminate & Restart Analysis</span>
-          </button>
-        </motion.div>
+          Take the assessment again
+        </motion.button>
       </div>
     </div>
   )
