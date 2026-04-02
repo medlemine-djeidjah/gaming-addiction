@@ -1,69 +1,76 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronRight, ChevronLeft, Gamepad2, Moon, Brain, Heart, Users, Trophy } from 'lucide-react'
+import { ChevronRight, ChevronLeft, Gamepad2, Moon, Brain, Users, Trophy } from 'lucide-react'
 import { SliderField, ChoiceGrid, RatingScale, ToggleRow } from './components/inputs'
 import Results from './components/Results'
 
-// ─── Constants ───────────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const MODELS = [
-  { value: 'decision_tree',     label: 'Decision Tree (99.5%)' },
-  { value: 'gradient_boosting', label: 'Gradient Boosting (99.5%)' },
-  { value: 'random_forest',     label: 'Random Forest (99.0%)' },
+  { value: 'decision_tree',       label: 'Decision Tree (99.5%)' },
+  { value: 'gradient_boosting',   label: 'Gradient Boosting (99.5%)' },
+  { value: 'random_forest',       label: 'Random Forest (99.0%)' },
   { value: 'logistic_regression', label: 'Logistic Regression (98.0%)' },
 ]
 
 const STEPS_META = [
-  { title: 'Your Profile',       subtitle: 'Tell us a bit about yourself and your gaming history',     icon: <Gamepad2 size={20} />, grad: 'from-violet-600 to-purple-700' },
-  { title: 'Gaming Habits',      subtitle: 'How, what, and how much you play',                         icon: <Gamepad2 size={20} />, grad: 'from-purple-600 to-indigo-700' },
-  { title: 'Sleep & Body',       subtitle: 'Gaming can quietly affect your physical health',           icon: <Moon size={20} />,     grad: 'from-indigo-600 to-blue-700' },
-  { title: 'Mind & Mood',        subtitle: 'Your emotional state is a key indicator',                  icon: <Brain size={20} />,    grad: 'from-blue-600 to-cyan-700' },
-  { title: 'Physical & Social',  subtitle: 'Activity and social life paint the full picture',          icon: <Heart size={20} />,    grad: 'from-cyan-600 to-teal-700' },
-  { title: 'Performance',        subtitle: 'How gaming impacts your work or academic life',            icon: <Trophy size={20} />,   grad: 'from-teal-600 to-emerald-700' },
+  { title: 'Your Profile',     subtitle: 'A few basics about you and your gaming history',          icon: <Gamepad2 size={20} />, grad: 'from-violet-600 to-purple-700' },
+  { title: 'Gaming Habits',    subtitle: 'How much you play, on what, and how much you spend',      icon: <Gamepad2 size={20} />, grad: 'from-purple-600 to-indigo-700' },
+  { title: 'Sleep & Body',     subtitle: 'Gaming often disrupts sleep and causes physical strain',  icon: <Moon size={20} />,     grad: 'from-indigo-600 to-blue-700'   },
+  { title: 'Mind & Mood',      subtitle: 'Emotional patterns are key addiction indicators',         icon: <Brain size={20} />,    grad: 'from-blue-600 to-cyan-700'     },
+  { title: 'Social & Results', subtitle: 'How gaming affects your relationships and performance',   icon: <Users size={20} />,    grad: 'from-cyan-600 to-teal-700'     },
 ]
 
+// ─── Default values ───────────────────────────────────────────────────────────
+// The 17 PDF params are managed by the form.
+// The remaining 8 params the model needs are fixed to sensible dataset medians
+// and never shown to the user.
+
 const DEFAULT = {
-  age: 22,
-  gender: 'Male',
-  years_gaming: 5,
-  daily_gaming_hours: 3,
-  game_genre: 'MOBA',
-  primary_game: 'League of Legends',
-  gaming_platform: 'PC',
-  monthly_game_spending_usd: 20,
-  sleep_hours: 7,
-  sleep_quality: 'Fair',
-  sleep_disruption_frequency: 'Sometimes',
-  weight_change_kg: 1,
-  mood_state: 'Normal',
-  mood_swing_frequency: 'Sometimes',
-  withdrawal_symptoms: 0,
-  loss_of_other_interests: 0,
-  continued_despite_problems: 0,
-  eye_strain: 0,
-  back_neck_pain: 0,
-  exercise_hours_weekly: 3,
-  social_isolation_score: 4,
+  // ── Shown in form (17 params from PDF) ──────────────────────────────────────
+  age:                            22,
+  gender:                         'Male',
+  years_gaming:                   5,
+  daily_gaming_hours:             3,
+  gaming_platform:                'PC',
+  monthly_game_spending_usd:      20,
+  sleep_hours:                    7,
+  sleep_disruption_frequency:     'Sometimes',
+  back_neck_pain:                 0,
+  mood_state:                     'Normal',
+  mood_swing_frequency:           'Sometimes',
+  loss_of_other_interests:        0,
+  continued_despite_problems:     0,
+  social_isolation_score:         4,
   face_to_face_social_hours_weekly: 8,
-  academic_work_performance: 'Good',
-  grades_gpa: 3.0,
-  work_productivity_score: 7,
+  academic_work_performance:      'Good',
+  grades_gpa:                     3.0,
+
+  // ── Hidden — dataset medians / most-frequent values (not in PDF) ─────────────
+  game_genre:            'MOBA',
+  primary_game:          'League of Legends',
+  sleep_quality:         'Fair',
+  work_productivity_score: 5,
+  withdrawal_symptoms:   0,
+  eye_strain:            0,
+  weight_change_kg:      1,
+  exercise_hours_weekly: 3,
 }
 
-// ─── Step components ──────────────────────────────────────────────────────────
+// ─── Step components (only PDF params) ───────────────────────────────────────
 
 function ProfileStep({ v, u }) {
   return (
     <>
       <SliderField
         label="Your Age"
-        description="How old are you? Gaming habits and risks vary significantly with age."
+        description="Gaming risk profiles differ significantly across age groups."
         value={v.age} min={13} max={45} step={1} unit=" yrs"
         onChange={val => u('age', val)}
       />
       <ChoiceGrid
         label="Gender"
-        description="Biological factors can influence gaming patterns and addiction risk."
+        description="Helps the model apply the right statistical baseline."
         options={[
           { value: 'Male',   label: 'Male',   icon: '♂️' },
           { value: 'Female', label: 'Female', icon: '♀️' },
@@ -74,8 +81,8 @@ function ProfileStep({ v, u }) {
         onChange={val => u('gender', val)}
       />
       <SliderField
-        label="Years of Gaming"
-        description="How long have you been a gamer? Long-term players may have different risk profiles."
+        label="Years Gaming"
+        description="How long have you been a gamer? Veteran players can develop different habits."
         value={v.years_gaming} min={0} max={20} step={1} unit=" yrs"
         onChange={val => u('years_gaming', val)}
       />
@@ -88,65 +95,17 @@ function GamingHabitsStep({ v, u }) {
     <>
       <SliderField
         label="Daily Gaming Hours"
-        description="On average, how many hours do you game per day? This is the single biggest indicator."
+        description="The strongest single predictor of addiction risk. Be honest — this is the average across all days."
         value={v.daily_gaming_hours} min={0.5} max={15} step={0.5} unit=" hrs"
         onChange={val => u('daily_gaming_hours', val)}
       />
       <ChoiceGrid
-        label="Favourite Game Genre"
-        description="Certain genres (like MMOs and MOBAs) are more strongly linked to addictive patterns."
-        options={[
-          { value: 'MOBA',         label: 'MOBA',          icon: '⚔️' },
-          { value: 'FPS',          label: 'FPS / Shooter',  icon: '🔫' },
-          { value: 'RPG',          label: 'RPG',            icon: '🧙' },
-          { value: 'MMO',          label: 'MMO',            icon: '🌍' },
-          { value: 'Battle Royale',label: 'Battle Royale',  icon: '🪂' },
-          { value: 'Strategy',     label: 'Strategy',       icon: '♟️' },
-          { value: 'Mobile Games', label: 'Mobile',         icon: '📱' },
-        ]}
-        columns={4}
-        value={v.game_genre}
-        onChange={val => u('game_genre', val)}
-      />
-      <ChoiceGrid
-        label="Primary Game"
-        description="The specific title you spend the most time on."
-        options={[
-          { value: 'League of Legends', label: 'League of Legends' },
-          { value: 'Dota 2',            label: 'Dota 2' },
-          { value: 'Valorant',          label: 'Valorant' },
-          { value: 'CS:GO',             label: 'CS:GO' },
-          { value: 'Fortnite',          label: 'Fortnite' },
-          { value: 'PUBG',              label: 'PUBG' },
-          { value: 'PUBG Mobile',       label: 'PUBG Mobile' },
-          { value: 'Apex Legends',      label: 'Apex Legends' },
-          { value: 'Warzone',           label: 'Warzone' },
-          { value: 'World of Warcraft', label: 'World of Warcraft' },
-          { value: 'Final Fantasy XIV', label: 'FF XIV' },
-          { value: 'Elder Scrolls Online', label: 'ESO' },
-          { value: 'Genshin Impact',    label: 'Genshin Impact' },
-          { value: 'Mobile Legends',    label: 'Mobile Legends' },
-          { value: 'Clash of Clans',    label: 'Clash of Clans' },
-          { value: 'Candy Crush',       label: 'Candy Crush' },
-          { value: 'Minecraft',         label: 'Minecraft' },
-          { value: 'Overwatch',         label: 'Overwatch' },
-          { value: 'Elden Ring',        label: 'Elden Ring' },
-          { value: 'Cyberpunk 2077',    label: 'Cyberpunk 2077' },
-          { value: 'Skyrim',            label: 'Skyrim' },
-          { value: 'StarCraft II',      label: 'StarCraft II' },
-          { value: 'Civilization VI',   label: 'Civ VI' },
-          { value: 'Age of Empires',    label: 'Age of Empires' },
-        ]}
-        columns={4}
-        value={v.primary_game}
-        onChange={val => u('primary_game', val)}
-      />
-      <ChoiceGrid
         label="Gaming Platform"
+        description="Platform affects session length and accessibility — mobile gaming can be especially hard to limit."
         options={[
-          { value: 'PC',             label: 'PC',           icon: '🖥️' },
-          { value: 'Console',        label: 'Console',      icon: '🎮' },
-          { value: 'Mobile',         label: 'Mobile',       icon: '📱' },
+          { value: 'PC',             label: 'PC',             icon: '🖥️' },
+          { value: 'Console',        label: 'Console',        icon: '🎮' },
+          { value: 'Mobile',         label: 'Mobile',         icon: '📱' },
           { value: 'Multi-platform', label: 'Multi-platform', icon: '🔀' },
         ]}
         columns={4}
@@ -155,7 +114,7 @@ function GamingHabitsStep({ v, u }) {
       />
       <SliderField
         label="Monthly Game Spending"
-        description="How much do you spend per month on games, DLC, battle passes, or in-game items?"
+        description="Spending on games, DLC, battle passes, or in-game items. High spending is a known risk signal."
         value={v.monthly_game_spending_usd} min={0} max={500} step={5}
         formatFn={val => `$${val}`}
         onChange={val => u('monthly_game_spending_usd', val)}
@@ -164,31 +123,18 @@ function GamingHabitsStep({ v, u }) {
   )
 }
 
-function SleepHealthStep({ v, u }) {
+function SleepBodyStep({ v, u }) {
   return (
     <>
       <SliderField
-        label="Hours of Sleep per Night"
-        description="Adults need 7–9 hours. Gaming often pushes bedtime later, disrupting sleep cycles."
+        label="Sleep Hours per Night"
+        description="Gaming is one of the top reasons people sacrifice sleep. The healthy range is 7–9 hours."
         value={v.sleep_hours} min={2} max={12} step={0.5} unit=" hrs"
         onChange={val => u('sleep_hours', val)}
       />
       <RatingScale
-        label="Sleep Quality"
-        description="How refreshed do you feel after waking up most mornings?"
-        options={[
-          { value: 'Very Poor', label: 'Very Poor' },
-          { value: 'Poor',      label: 'Poor' },
-          { value: 'Fair',      label: 'Fair' },
-          { value: 'Good',      label: 'Good' },
-          { value: 'Insomnia',  label: 'Insomnia' },
-        ]}
-        value={v.sleep_quality}
-        onChange={val => u('sleep_quality', val)}
-      />
-      <RatingScale
         label="How Often Does Gaming Disrupt Your Sleep?"
-        description="Staying up late to game, or feeling too wired to sleep after a session."
+        description="Staying up late to play, or feeling too stimulated to sleep after a session."
         options={[
           { value: 'Never',     label: 'Never' },
           { value: 'Rarely',    label: 'Rarely' },
@@ -199,22 +145,22 @@ function SleepHealthStep({ v, u }) {
         value={v.sleep_disruption_frequency}
         onChange={val => u('sleep_disruption_frequency', val)}
       />
-      <SliderField
-        label="Weight Change (kg)"
-        description="Have you noticed any weight gain over the past year? Sedentary gaming can contribute."
-        value={v.weight_change_kg} min={0} max={9} step={0.5} unit=" kg"
-        onChange={val => u('weight_change_kg', val)}
+      <ToggleRow
+        label="Back or Neck Pain"
+        description="Do you regularly experience back, neck, or shoulder pain from long gaming sessions?"
+        value={v.back_neck_pain}
+        onChange={val => u('back_neck_pain', val)}
       />
     </>
   )
 }
 
-function MentalMoodStep({ v, u }) {
+function MindMoodStep({ v, u }) {
   return (
     <>
       <ChoiceGrid
-        label="How Would You Describe Your General Mood?"
-        description="Your typical emotional state over the past few weeks."
+        label="General Mood (past few weeks)"
+        description="How you typically feel day-to-day. Negative mood states are often amplified by heavy gaming."
         options={[
           { value: 'Normal',    label: 'Normal',    icon: '😐' },
           { value: 'Anxious',   label: 'Anxious',   icon: '😰' },
@@ -231,8 +177,8 @@ function MentalMoodStep({ v, u }) {
         onChange={val => u('mood_state', val)}
       />
       <RatingScale
-        label="How Often Do You Experience Mood Swings?"
-        description="Sudden emotional shifts, especially when not playing or after losing."
+        label="Mood Swing Frequency"
+        description="Sudden shifts in emotions — especially irritability when you can't play or after losing."
         options={[
           { value: 'Never',     label: 'Never' },
           { value: 'Rarely',    label: 'Rarely' },
@@ -243,23 +189,17 @@ function MentalMoodStep({ v, u }) {
         value={v.mood_swing_frequency}
         onChange={val => u('mood_swing_frequency', val)}
       />
-      <div className="mt-2">
-        <p className="text-gray-400 text-xs mb-3 font-medium uppercase tracking-wide">Behavioural Signals</p>
+      <div className="mt-1">
+        <p className="text-gray-500 text-xs mb-3 font-medium uppercase tracking-wide">Behavioural patterns</p>
         <ToggleRow
-          label="Withdrawal Symptoms"
-          description="Do you feel irritable, anxious, or restless when you can't game?"
-          value={v.withdrawal_symptoms}
-          onChange={val => u('withdrawal_symptoms', val)}
-        />
-        <ToggleRow
-          label="Loss of Other Interests"
-          description="Have hobbies or activities you used to enjoy lost their appeal?"
+          label="Loss of Interest in Other Activities"
+          description="Have hobbies, sports, or activities you once enjoyed lost their appeal since gaming took over?"
           value={v.loss_of_other_interests}
           onChange={val => u('loss_of_other_interests', val)}
         />
         <ToggleRow
-          label="Continued Despite Problems"
-          description="Do you keep gaming even when it causes issues (relationship, work, health)?"
+          label="Continued Gaming Despite Problems"
+          description="Do you keep playing even when it's causing issues with relationships, work, or your health?"
           value={v.continued_despite_problems}
           onChange={val => u('continued_despite_problems', val)}
         />
@@ -268,56 +208,28 @@ function MentalMoodStep({ v, u }) {
   )
 }
 
-function PhysicalSocialStep({ v, u }) {
+function SocialResultsStep({ v, u }) {
   return (
     <>
-      <div className="mb-2">
-        <p className="text-gray-400 text-xs mb-3 font-medium uppercase tracking-wide">Physical Symptoms</p>
-        <ToggleRow
-          label="Eye Strain"
-          description="Do you regularly experience sore, tired, or strained eyes after gaming?"
-          value={v.eye_strain}
-          onChange={val => u('eye_strain', val)}
-        />
-        <ToggleRow
-          label="Back or Neck Pain"
-          description="Do you often have back, neck, or wrist discomfort from long gaming sessions?"
-          value={v.back_neck_pain}
-          onChange={val => u('back_neck_pain', val)}
-        />
-      </div>
-      <SliderField
-        label="Weekly Exercise Hours"
-        description="Physical activity is a strong protective factor against addiction. How many hours per week do you exercise?"
-        value={v.exercise_hours_weekly} min={0} max={15} step={0.5} unit=" hrs"
-        onChange={val => u('exercise_hours_weekly', val)}
-      />
       <SliderField
         label="Social Isolation Level"
-        description="On a scale of 1 (very connected) to 10 (very isolated), how socially isolated do you feel?"
+        description="1 = fully connected with people around you. 10 = feeling completely cut off from others."
         value={v.social_isolation_score} min={1} max={10} step={1}
         formatFn={val => {
-          const labels = ['', 'Very Connected', '', 'Connected', '', 'Neutral', '', 'Isolated', '', 'Very Isolated', 'Completely Isolated']
-          return `${val} — ${labels[val] || ''}`
+          const labels = { 1: 'Very connected', 2: '', 3: 'Connected', 4: '', 5: 'Neutral', 6: '', 7: 'Isolated', 8: '', 9: 'Very isolated', 10: 'Completely isolated' }
+          return `${val}${labels[val] ? ` — ${labels[val]}` : ''}`
         }}
         onChange={val => u('social_isolation_score', val)}
       />
       <SliderField
         label="Face-to-Face Social Hours (per week)"
-        description="Time spent in-person with friends or family. Digital interaction doesn't count here."
+        description="Time spent in person with friends or family. Online interactions don't count — real-world contact matters."
         value={v.face_to_face_social_hours_weekly} min={0} max={20} step={0.5} unit=" hrs"
         onChange={val => u('face_to_face_social_hours_weekly', val)}
       />
-    </>
-  )
-}
-
-function PerformanceStep({ v, u }) {
-  return (
-    <>
       <ChoiceGrid
-        label="Academic or Work Performance"
-        description="How would you rate your performance at school or work lately?"
+        label="Academic / Work Performance"
+        description="How would you honestly rate your performance at school or work over the past few months?"
         options={[
           { value: 'Excellent',     label: 'Excellent',     icon: '🌟' },
           { value: 'Good',          label: 'Good',          icon: '✅' },
@@ -332,34 +244,27 @@ function PerformanceStep({ v, u }) {
       />
       <SliderField
         label="GPA / Grade Score"
-        description="If you're a student, enter your current GPA (0–4 scale). If working, enter your closest equivalent (e.g. 3.5 = good performance)."
+        description="Your current academic GPA (0–4 scale). If working, estimate: 4.0 = outstanding, 1.0 = very poor."
         value={v.grades_gpa} min={1.0} max={4.0} step={0.1}
         formatFn={val => val.toFixed(1)}
         onChange={val => u('grades_gpa', val)}
-      />
-      <SliderField
-        label="Work / Study Productivity"
-        description="On a scale of 1–10, how productive are you at work or studying on most days?"
-        value={v.work_productivity_score} min={1} max={10} step={1}
-        formatFn={val => `${val} / 10`}
-        onChange={val => u('work_productivity_score', val)}
       />
     </>
   )
 }
 
-const STEP_RENDERERS = [ProfileStep, GamingHabitsStep, SleepHealthStep, MentalMoodStep, PhysicalSocialStep, PerformanceStep]
+const STEP_RENDERERS = [ProfileStep, GamingHabitsStep, SleepBodyStep, MindMoodStep, SocialResultsStep]
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [step, setStep] = useState(0)
-  const [dir, setDir] = useState(1)
-  const [values, setValues] = useState(DEFAULT)
-  const [model, setModel] = useState('decision_tree')
-  const [result, setResult] = useState(null)
+  const [step, setStep]       = useState(0)
+  const [dir, setDir]         = useState(1)
+  const [values, setValues]   = useState(DEFAULT)
+  const [model, setModel]     = useState('decision_tree')
+  const [result, setResult]   = useState(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [error, setError]     = useState(null)
 
   const update = (key, val) => setValues(v => ({ ...v, [key]: val }))
 
@@ -376,11 +281,11 @@ export default function App() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...values, model_name: model }),
         })
-        if (!res.ok) throw new Error(`Server error: ${res.status}`)
+        if (!res.ok) throw new Error(`Server error ${res.status}`)
         const data = await res.json()
         setResult(data)
       } catch (e) {
-        setError(e.message || 'Failed to connect to the prediction server. Make sure the API is running.')
+        setError(e.message || 'Could not reach the prediction server — make sure the API is running.')
       } finally {
         setLoading(false)
       }
@@ -393,7 +298,12 @@ export default function App() {
   }
 
   if (result) {
-    return <Results result={result} onReset={() => { setResult(null); setStep(0); setValues(DEFAULT) }} />
+    return (
+      <Results
+        result={result}
+        onReset={() => { setResult(null); setStep(0); setValues(DEFAULT) }}
+      />
+    )
   }
 
   const StepComponent = STEP_RENDERERS[step]
@@ -402,14 +312,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#070711] text-white flex flex-col items-center">
-      {/* Background */}
+
+      {/* Ambient background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none select-none" aria-hidden>
         <div className="absolute -top-60 -left-40 w-96 h-96 bg-purple-900/25 rounded-full blur-[80px]" />
         <div className="absolute -bottom-60 -right-40 w-[30rem] h-[30rem] bg-indigo-900/15 rounded-full blur-[100px]" />
         <div className="absolute top-1/3 right-10 w-64 h-64 bg-cyan-900/10 rounded-full blur-[60px]" />
-        {/* Grid overlay */}
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.025]"
           style={{
             backgroundImage: 'linear-gradient(#8b5cf6 1px, transparent 1px), linear-gradient(90deg, #8b5cf6 1px, transparent 1px)',
             backgroundSize: '40px 40px',
@@ -427,6 +337,7 @@ export default function App() {
             <h1 className="text-lg font-black tracking-tight text-white">GamingCheck</h1>
             <p className="text-gray-600 text-xs">AI-powered gaming addiction risk assessment</p>
           </div>
+
           {/* Model picker */}
           <div className="ml-auto">
             <select
@@ -443,22 +354,19 @@ export default function App() {
           </div>
         </div>
 
-        {/* Progress bar */}
+        {/* Progress */}
         <div className="flex gap-1.5 mb-2">
           {STEPS_META.map((_, i) => (
-            <motion.div
-              key={i}
-              className="h-1 flex-1 rounded-full overflow-hidden bg-white/10"
-            >
+            <div key={i} className="h-1 flex-1 rounded-full overflow-hidden bg-white/10">
               {i <= step && (
                 <motion.div
                   className="h-full bg-gradient-to-r from-purple-500 to-cyan-500"
                   initial={{ width: 0 }}
                   animate={{ width: '100%' }}
-                  transition={{ duration: 0.4 }}
+                  transition={{ duration: 0.35 }}
                 />
               )}
-            </motion.div>
+            </div>
           ))}
         </div>
         <div className="flex justify-between text-xs text-gray-600">
@@ -474,9 +382,9 @@ export default function App() {
             key={step}
             custom={dir}
             variants={{
-              enter: d  => ({ opacity: 0, x: d > 0 ? 70 : -70 }),
-              center:    { opacity: 1, x: 0 },
-              exit:  d  => ({ opacity: 0, x: d > 0 ? -70 : 70 }),
+              enter:  d => ({ opacity: 0, x: d > 0 ?  70 : -70 }),
+              center:   { opacity: 1, x: 0 },
+              exit:   d => ({ opacity: 0, x: d > 0 ? -70 :  70 }),
             }}
             initial="enter"
             animate="center"
@@ -486,7 +394,7 @@ export default function App() {
             <div className="glass rounded-2xl p-6 shadow-2xl">
               {/* Step header */}
               <div className="flex items-center gap-3.5 mb-6">
-                <div className={`p-3 rounded-xl bg-gradient-to-br ${meta.grad} shadow-lg`}>
+                <div className={`p-3 rounded-xl bg-gradient-to-br ${meta.grad} shadow-lg flex-shrink-0`}>
                   {meta.icon}
                 </div>
                 <div>
@@ -495,13 +403,12 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Fields */}
               <StepComponent v={values} u={update} />
             </div>
           </motion.div>
         </AnimatePresence>
 
-        {/* Error */}
+        {/* Error banner */}
         {error && (
           <motion.div
             className="mt-3 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm"
