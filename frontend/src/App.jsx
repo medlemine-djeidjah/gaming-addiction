@@ -81,9 +81,8 @@ function ProfileStep({ v, u }) {
         options={[
           { value: 'Male',   label: 'Male',   icon: <User size={IC} /> },
           { value: 'Female', label: 'Female', icon: <UserCircle size={IC} /> },
-          { value: 'Other',  label: 'Other',  icon: <Users size={IC} /> },
         ]}
-        columns={3}
+        columns={2}
         value={v.gender}
         onChange={val => u('gender', val)}
       />
@@ -276,6 +275,11 @@ export default function App() {
   const update = (key, val) => setValues(v => ({ ...v, [key]: val }))
 
   const handleNext = async () => {
+    if (step === 0 && values.years_gaming > values.age) {
+      setError(`Wait, you have ${values.years_gaming} years of gaming experience but you are only ${values.age} years old? That's not possible!`)
+      return
+    }
+    setError(null)
     if (step < STEPS_META.length - 1) {
       setDir(1)
       setStep(s => s + 1)
@@ -422,7 +426,10 @@ export default function App() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            ⚠️ {error}
+            <div className="flex items-center gap-2">
+              <AlertTriangle size={16} />
+              <span>{error}</span>
+            </div>
           </motion.div>
         )}
 

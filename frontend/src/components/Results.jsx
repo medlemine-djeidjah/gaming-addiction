@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { RotateCcw, Shield, AlertTriangle, Zap, Skull, CheckCircle } from 'lucide-react'
+import { RotateCcw, Shield, AlertTriangle, Zap, Skull, CheckCircle, Gamepad2 } from 'lucide-react'
 
 const RISK_CONFIG = {
   Low:      { color: '#10b981', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)',  glow: 'rgba(16,185,129,0.4)',  score: 12, icon: <Shield size={32} />,        label: 'Low Risk',      desc: 'Your gaming habits appear healthy. Keep maintaining a balanced lifestyle.' },
@@ -120,7 +120,9 @@ export default function Results({ result, onReset }) {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="text-3xl">🎮</div>
+          <div className="text-orange-400">
+            <Gamepad2 size={32} />
+          </div>
           <div>
             <h1 className="text-xl font-bold">GamingCheck</h1>
             <p className="text-gray-500 text-xs">Your personalized risk assessment</p>
